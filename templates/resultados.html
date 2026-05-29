@@ -1,0 +1,27 @@
+{% extends "layouts/estudiante_base.html" %}
+{% block title %}Resultados{% endblock %}
+{% block module_content %}
+<main class="results-card anim-fade-in">
+    <div class="results-ring anim-scale-in" style="--pct: {{ porcentaje }}"><span class="results-percent" id="results-percent" data-target="{{ porcentaje }}">0%</span></div>
+    <h1>Simulación finalizada</h1>
+    <p class="results-score">Obtuviste <strong id="score-final" data-target="{{ puntaje }}">0</strong> de <strong>{{ total }}</strong> puntos.</p>
+    <p class="results-message" id="results-message"></p>
+    <div class="results-actions">
+        {% if case_id %}<a class="btn btn-neuro" href="{{ url_for('estudiante.informe', case_id=case_id) }}">Ver informe completo</a>{% endif %}
+        <a class="btn btn-ghost" href="{{ url_for('estudiante.dashboard') }}">Panel</a>
+    </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const pct = {{ porcentaje }};
+  const msg = document.getElementById('results-message');
+  if (pct >= 85) msg.textContent = 'Excelente desempeño clínico-ético.';
+  else if (pct >= 60) msg.textContent = 'Buen desempeño. Revisa la retroalimentación normativa.';
+  else msg.textContent = 'Oportunidades de mejora. Repite y usa la caja de herramientas.';
+  PsicoAnimations.initResults();
+});
+</script>
+{% endblock %}

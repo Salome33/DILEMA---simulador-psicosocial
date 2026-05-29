@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}NEURAL_SIM | Acceso Seguro{% endblock %}
+{% block body_class %}page page-auth neuro-page{% endblock %}
+
+{% block content %}
+<div class="scanline" aria-hidden="true"></div>
+<main class="auth-shell anim-fade-in">
+    <section class="auth-card neuro-card anim-scale-in">
+        <div class="auth-brand">
+            <span class="neuro-tag">NEURAL_SIM_v1.0</span>
+            <span class="material-symbols-outlined neuro-icon">psychology</span>
+            <h1>Acceso al simulador</h1>
+            <p>Psicología social — entorno clínico gamificado</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            <h2>Iniciar sesión</h2>
+            <label class="field neuro-field">
+                <span>ID DE USUARIO</span>
+                <input type="email" name="email" required placeholder="usuario@psicosim.com" autocomplete="username"/>
+            </label>
+            <label class="field neuro-field">
+                <span>CLAVE DE ACCESO</span>
+                <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password"/>
+            </label>
+            <button type="submit" class="btn btn-neuro btn-block btn-lg">AUTENTICAR</button>
+        </form>
+
+        <div class="auth-demo">
+            <p class="neuro-tag">CUENTAS DEMO</p>
+            <ul>
+                <li><strong>Estudiante:</strong> estudiante@psicosim.com / estudiante123</li>
+                <li><strong>Profesor:</strong> profesor@psicosim.com / profesor123</li>
+                <li><strong>Admin:</strong> admin@psicosim.com / admin123</li>
+            </ul>
+        </div>
+    </section>
+</main>
+{% endblock %}

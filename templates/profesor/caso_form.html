@@ -1,0 +1,13 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Nuevo caso{% endblock %}
+{% block module_content %}
+<section class="panel neuro-panel form-panel"><h1>Crear caso de simulación</h1>
+<form method="post" class="admin-form">
+<label class="field"><span>Título</span><input name="titulo" required/></label>
+<label class="field"><span>Descripción</span><textarea name="descripcion" rows="4" required></textarea></label>
+<label class="field"><span>Propósito formativo</span><textarea name="proposito" rows="3" required></textarea></label>
+<label class="field"><span>Temática</span><input name="tematica" required/></label>
+<label class="field field-check"><input type="checkbox" name="sensible" checked/><span>Contenido sensible</span></label>
+<button type="submit" class="btn btn-neuro">Guardar borrador</button>
+</form></section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Grupos | Admin{% endblock %}
+{% block module_content %}
+<section class="panel neuro-panel form-panel"><h1>Crear grupo académico</h1>
+<form method="post" class="admin-form">
+<label class="field"><span>Nombre</span><input name="nombre" required/></label>
+<label class="field"><span>Asignatura</span><input name="asignatura" required/></label>
+<label class="field"><span>Periodo</span><input name="periodo" placeholder="2026-I" required/></label>
+<label class="field"><span>Docente responsable</span><select name="docente_id"><option value="">—</option>{% for p in profesores %}<option value="{{ p.id }}">{{ p.nombre }}</option>{% endfor %}</select></label>
+<button type="submit" class="btn btn-neuro">Crear grupo</button>
+</form></section>
+<div class="table-wrap"><table class="data-table"><thead><tr><th>Grupo</th><th>Asignatura</th><th>Periodo</th><th>Estudiantes</th></tr></thead><tbody>
+{% for g in groups %}<tr><td>{{ g.nombre }}</td><td>{{ g.asignatura }}</td><td>{{ g.periodo }}</td><td>{{ g.num_estudiantes }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

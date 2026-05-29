@@ -1,0 +1,11 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Grupos | Docente{% endblock %}
+{% block module_content %}
+<header class="page-header"><h1>Grupos académicos</h1><a class="btn btn-neuro" href="{{ url_for('profesor.asignar_caso') }}">Asignar caso</a></header>
+<div class="case-grid">
+{% for g in groups %}
+<article class="case-card neuro-panel"><h2>{{ g.nombre }}</h2><p>{{ g.asignatura }} · {{ g.periodo }}</p><p>{{ g.num_estudiantes }} estudiantes</p>
+<a class="btn btn-ghost" href="{{ url_for('profesor.grupo_detalle', group_id=g.id) }}">Ver detalle</a></article>
+{% else %}<p class="empty-state">Sin grupos.</p>{% endfor %}
+</div>
+{% endblock %}
