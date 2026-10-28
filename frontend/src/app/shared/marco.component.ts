@@ -1,13 +1,15 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../core/auth.service';
 
 @Component({
   selector: 'app-marco',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule],
   template: `
     <div class="app-frame" [class.superior]="modo() === 'superior'">
-      <header class="topbar">
+      <mat-toolbar class="topbar">
         <div class="brand">Simulador de Psicología Social</div>
         @if (modo() === 'superior') {
           <nav class="topnav">
@@ -18,9 +20,9 @@ import { AuthService } from '../core/auth.service';
         }
         <div class="top-acciones">
           <div class="quien">{{ rotulo() }}</div>
-          <button class="salir-top" type="button" (click)="auth.salir()">Cerrar sesión</button>
+          <button mat-stroked-button type="button" (click)="auth.salir()">Cerrar sesión</button>
         </div>
-      </header>
+      </mat-toolbar>
       <div class="work">
         @if (modo() !== 'superior') {
           <aside class="side">

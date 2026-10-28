@@ -1,7 +1,0 @@
-{% extends "layouts/profesor_base.html" %}
-{% block title %}Observación docente{% endblock %}
-{% block module_content %}
-<section class="panel neuro-panel form-panel"><h1>Registrar observación académica</h1>
-<form method="post" class="admin-form"><label class="field"><span>Observación</span><textarea name="observacion" rows="6" required></textarea></label><button type="submit" class="btn btn-neuro">Guardar</button></form></section>
-{% if observations %}<h2>Historial</h2>{% for o in observations %}<div class="log-entry"><p>{{ o.observacion }}</p><small>{{ o.created_at[:16] }}</small></div>{% endfor %}{% endif %}
-{% endblock %}

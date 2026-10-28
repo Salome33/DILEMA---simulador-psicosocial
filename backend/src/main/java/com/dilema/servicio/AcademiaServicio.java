@@ -30,11 +30,13 @@ public class AcademiaServicio {
     private final ProxyOperacion proxy;
     private final BitacoraServicio bitacora;
     private final Mapeador mapeador;
+    private final FabricaCuentas fabrica;
 
     public AcademiaServicio(GrupoRepo grupos, CasoRepo casos, SesionRepo sesiones, UsuarioRepo usuarios,
                             ParticipacionRepo participaciones, SesionEstudianteRepo autorizados,
                             ParticipacionServicio participacionServicio,
-                            ProxyOperacion proxy, BitacoraServicio bitacora, Mapeador mapeador) {
+                            ProxyOperacion proxy, BitacoraServicio bitacora, Mapeador mapeador,
+                            FabricaCuentas fabrica) {
         this.grupos = grupos;
         this.casos = casos;
         this.sesiones = sesiones;
@@ -45,6 +47,7 @@ public class AcademiaServicio {
         this.proxy = proxy;
         this.bitacora = bitacora;
         this.mapeador = mapeador;
+        this.fabrica = fabrica;
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +58,7 @@ public class AcademiaServicio {
 
     @Transactional
     public Contratos.GrupoVista crearGrupo(Usuario docente, Contratos.GrupoIn entrada) {
-        proxy.revisarGrupo(docente);
+        proxy.gestionarEspacio(docente);
         if (entrada.nombre() == null || entrada.nombre().isBlank() || entrada.espacioAcademico() == null || entrada.espacioAcademico().isBlank()) {
             throw new ReglaNegocio("El grupo necesita nombre y semestre.");
         }
@@ -69,12 +72,20 @@ public class AcademiaServicio {
     }
 
     @Transactional
-    public Contratos.GrupoVista agregarEstudiante(Usuario docente, Long grupoId, String email) {
+    public Contratos.GrupoVista agregarEstudiante(Usuario docente, Long grupoId, String nombre, String email) {
         proxy.revisarGrupo(docente);
         Grupo grupo = propio(docente, grupoId);
-        Usuario estudiante = usuarios.findByEmailIgnoreCase(email == null ? "" : email.trim())
-                .filter(u -> u.rol == Catalogo.Rol.ESTUDIANTE && u.activo)
-                .orElseThrow(() -> new ReglaNegocio("No existe un estudiante activo con ese correo."));
+        String correo = email == null ? "" : email.trim();
+        Usuario encontrado = usuarios.findByEmailIgnoreCase(correo).orElse(null);
+        if (encontrado == null) {
+            if (nombre == null || nombre.isBlank()) {
+                throw new ReglaNegocio("Indica el nombre del estudiante.");
+            }
+            encontrado = fabrica.nuevoEstudiante(nombre, correo);
+        } else if (encontrado.rol != Catalogo.Rol.ESTUDIANTE || !encontrado.activo) {
+            throw new ReglaNegocio("Ese correo pertenece a otra cuenta.");
+        }
+        Usuario estudiante = encontrado;
         if (grupo.pertenece(estudiante)) throw new ReglaNegocio("El estudiante ya está en el grupo.");
         grupo.estudiantes.add(estudiante);
         String codigo = sesiones.findByGrupo_Docente_IdOrderByIdDesc(docente.id).stream()
