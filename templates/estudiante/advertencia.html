@@ -1,0 +1,20 @@
+{% extends "layouts/estudiante_base.html" %}
+{% block title %}Advertencia | Contenido sensible{% endblock %}
+{% block module_content %}
+<section class="panel neuro-panel warning-panel anim-scale-in">
+    <span class="material-symbols-outlined warning-icon">warning</span>
+    <span class="neuro-tag">PROTOCOLO DE CONTENIDO SENSIBLE</span>
+    <h1>Advertencia académica</h1>
+    <p class="warning-text">{{ warning.mensaje if warning else 'Este caso contiene material sensible.' }}</p>
+    <form method="post" class="consent-form">
+        <label class="field field-check">
+            <input type="checkbox" name="acepto" required/>
+            <span>Acepto las condiciones de uso académico y comprendo la naturaleza sensible del contenido.</span>
+        </label>
+        <div class="form-actions">
+            <a class="btn btn-ghost" href="{{ url_for('estudiante.casos') }}">Cancelar</a>
+            <button type="submit" class="btn btn-neuro">Aceptar y continuar</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

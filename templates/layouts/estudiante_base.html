@@ -1,0 +1,11 @@
+{% extends "layouts/module_base.html" %}
+{% set dashboard_endpoint = 'estudiante.dashboard' %}
+
+{% block module_title %}Módulo Estudiante{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('estudiante.dashboard') }}" class="{% if active == 'dashboard' %}active{% endif %}"><span class="material-symbols-outlined">dashboard</span> Panel</a>
+<a href="{{ url_for('estudiante.casos') }}" class="{% if active == 'casos' %}active{% endif %}"><span class="material-symbols-outlined">folder_open</span> Casos</a>
+<a href="{{ url_for('estudiante.herramientas') }}" class="{% if active == 'herramientas' %}active{% endif %}"><span class="material-symbols-outlined">construction</span> Herramientas</a>
+<a href="{{ url_for('estudiante.historial') }}" class="{% if active == 'historial' %}active{% endif %}"><span class="material-symbols-outlined">history</span> Historial</a>
+{% endblock %}

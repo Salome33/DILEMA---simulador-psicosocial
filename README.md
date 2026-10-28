@@ -1,32 +1,78 @@
-# DILEMA — Simulador de psicología social
+# NEURAL_SIM — Simulador Interactivo de Psicología Social
 
-Aplicación de Spring Boot, Angular, PostgreSQL y correo. Se levanta con Docker.
-
-## Stack
-
-- Java 21 y Spring Boot
-- Spring Data JPA y PostgreSQL
-- Spring Security
-- API REST
-- Angular y Angular Material
-- Correo SMTP (Mailpit en el entorno local)
+Plataforma **Python (Flask)** alineada con los requisitos del documento Notion y el diseño **NeuroCommand** del ZIP de Stitch.
 
 ## Ejecutar
 
 ```powershell
-docker compose up --build
+cd "C:\Users\JOHN JAIRO\Projects\simulador-psicologia-social-python"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
 ```
 
-- Interfaz: http://localhost:4200
-- API: http://localhost:8080/api/salud
-- Bandeja de correo: http://localhost:8025
+http://localhost:5000
 
-## Cuentas de demostración
+## Cuentas demo
 
-| Rol | Correo | Acceso |
-|-----|--------|--------|
-| Estudiante | estudiante@psicosim.edu | código `DILEMA-2026` |
-| Docente | docente@psicosim.edu | `docente123` (solo Visualizar) |
-| Administración | admin@psicosim.edu | `admin123` |
+| Rol | Correo | Contraseña |
+|-----|--------|------------|
+| Estudiante | estudiante@psicosim.com | estudiante123 |
+| Profesor | profesor@psicosim.com | profesor123 |
+| Admin | admin@psicosim.com | admin123 |
 
-El estudiante entra con el código de la sesión. El docente y la administración entran con contraseña. Un docente nuevo nace con Visualizar. Crear casos exige el permiso Editar, y crear grupos exige Gestionar espacios académicos. Esos permisos los asigna la administración.
+## Flujo del estudiante (MVP)
+
+1. Login → Panel de actividades
+2. Caso asignado → Briefing → **Advertencia de contenido sensible**
+3. **Tutorial** (3 pasos) → Introducción narrativa
+4. **Simulación** (Hospital + Comisaría) con guardado de progreso
+5. **Bitácora reflexiva** tras escenario hospitalario
+6. **Resultados** + **Informe final**
+7. **Caja de herramientas** (PAP, EPICEE/SPIKES, rutas, conceptos)
+
+## Módulo docente
+
+- Grupos académicos y asignación de casos
+- Seguimiento de estudiantes y resultados
+- Revisión de bitácoras
+- Creación/publicación de casos (borrador → publicado)
+- **Observaciones docentes** (RF-55)
+
+## Módulo admin
+
+- Usuarios (CRUD)
+- Grupos académicos
+- **Auditoría** de accesos y acciones
+
+## Requisitos implementados
+
+| Área | Implementación |
+|------|----------------|
+| RI-01 Usuario | SQLite + roles |
+| RI-03 Grupo académico | `academic_groups` |
+| RI-05 Caso | `simulation_cases` + semilla Caso 1 |
+| RI-06 Asignación | `case_assignments` |
+| RI-07 Escenarios | Hospital + Comisaría |
+| RI-16 Participación | Progreso guardado / reanudar |
+| RI-17 Respuestas | Registro por decisión |
+| RI-21/22 Advertencia | Aceptación obligatoria |
+| RNF Seguridad | Sanitización de entradas |
+| RNF Recuperación | Progreso en BD + API `/api/progreso` |
+
+## Diseño (ZIP Stitch)
+
+Referencia en `design-reference/stitch_gamified_simulation_web_interface/`:
+- Tema **Cyber-Surgical Glassmorphism** (cyan/amber/emerald)
+- Tipografía Inter + JetBrains Mono
+- Login estilo NEURAL_SIM
+
+## Estructura
+
+```
+app.py, database.py, seeds.py, security.py
+routes/     auth, estudiante, profesor, admin, api
+templates/  por módulo + layouts
+static/     css (NeuroCommand), js (simulación + animaciones)
+```

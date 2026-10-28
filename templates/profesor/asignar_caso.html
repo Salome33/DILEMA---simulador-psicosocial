@@ -1,0 +1,12 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Asignar caso{% endblock %}
+{% block module_content %}
+<section class="panel neuro-panel form-panel"><h1>Asignar caso a grupo</h1>
+<form method="post" class="admin-form">
+<label class="field"><span>Caso publicado</span><select name="case_id" required>{% for c in cases %}<option value="{{ c.id }}">{{ c.titulo }}</option>{% endfor %}</select></label>
+<label class="field"><span>Grupo</span><select name="group_id" required>{% for g in groups %}<option value="{{ g.id }}">{{ g.nombre }}</option>{% endfor %}</select></label>
+<label class="field"><span>Inicio</span><input type="date" name="fecha_inicio" required/></label>
+<label class="field"><span>Cierre</span><input type="date" name="fecha_cierre" required/></label>
+<button type="submit" class="btn btn-neuro">Asignar</button>
+</form></section>
+{% endblock %}

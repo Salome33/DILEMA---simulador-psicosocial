@@ -1,0 +1,11 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Seguimiento{% endblock %}
+{% block module_content %}
+<h1>{{ detail.estudiante }} — {{ detail.caso_titulo }}</h1>
+<p>Puntaje: {{ detail.score }} · Estado: {{ detail.estado }}</p>
+<h2>Decisiones</h2>
+<div class="table-wrap"><table class="data-table"><thead><tr><th>Escena</th><th>Pregunta</th><th>Opción</th><th>Puntos</th><th>Tipo FB</th></tr></thead><tbody>
+{% for r in detail.responses %}<tr><td>{{ r.scene_index+1 }}</td><td>{{ r.question_index+1 }}</td><td>{{ r.option_id }}</td><td>{{ r.puntos }}</td><td>{{ r.feedback_tipo }}</td></tr>{% endfor %}
+</tbody></table></div>
+<a class="btn btn-neuro" href="{{ url_for('profesor.observacion', student_id=detail.user_id) }}">Registrar observación</a>
+{% endblock %}

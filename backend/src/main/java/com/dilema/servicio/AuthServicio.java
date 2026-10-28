@@ -8,7 +8,7 @@ import com.dilema.repo.ParticipacionRepo;
 import com.dilema.repo.SesionEstudianteRepo;
 import com.dilema.repo.SesionRepo;
 import com.dilema.repo.UsuarioRepo;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,19 +22,20 @@ public class AuthServicio {
     private final SesionEstudianteRepo autorizados;
     private final Tokens tokens;
     private final Mapeador mapeador;
-    private final PasswordEncoder cifrado;
+    private final BCryptPasswordEncoder cifrado = new BCryptPasswordEncoder();
     private final GestorAcceso gestor = new GestorAcceso();
 
     public AuthServicio(UsuarioRepo usuarios, SesionRepo sesiones, ParticipacionRepo participaciones,
-                        SesionEstudianteRepo autorizados, Tokens tokens, Mapeador mapeador, PasswordEncoder cifrado) {
+                        SesionEstudianteRepo autorizados, Tokens tokens, Mapeador mapeador) {
         this.usuarios = usuarios;
         this.sesiones = sesiones;
         this.participaciones = participaciones;
         this.autorizados = autorizados;
         this.tokens = tokens;
         this.mapeador = mapeador;
-        this.cifrado = cifrado;
     }
+
+    public BCryptPasswordEncoder cifrado() { return cifrado; }
 
     @Transactional
     public Contratos.SesionAuth ingresar(Contratos.Ingreso pedido) {

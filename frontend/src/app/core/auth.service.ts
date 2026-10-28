@@ -13,18 +13,11 @@ export class AuthService {
 
   rol() { return this.usuario()?.rol ?? null; }
 
-  puede(permiso: string) { return this.usuario()?.permisos?.includes(permiso) ?? false; }
-
-  ingresarEstudiante(email: string, codigo: string) {
-    return this.http.post<SesionAuth>('/api/auth/ingresar', {
-      email, rol: 'ESTUDIANTE', clave: null, codigoAutorizacion: codigo
-    }).pipe(tap((sesion) => this.guardar(sesion)));
-  }
-
-  ingresarCuenta(email: string, clave: string) {
-    return this.http.post<SesionAuth>('/api/auth/ingresar', {
-      email, rol: null, clave, codigoAutorizacion: null
-    }).pipe(tap((sesion) => this.guardar(sesion)));
+  ingresar(email: string, rol: string, clave: string, codigo: string) {
+    const cuerpo = rol === 'ESTUDIANTE'
+      ? { email, rol, clave: null, codigoAutorizacion: codigo }
+      : { email, rol, clave, codigoAutorizacion: null };
+    return this.http.post<SesionAuth>('/api/auth/ingresar', cuerpo).pipe(tap((sesion) => this.guardar(sesion)));
   }
 
   salir() {

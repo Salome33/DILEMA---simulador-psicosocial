@@ -1,0 +1,8 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Bitácoras{% endblock %}
+{% block module_content %}
+<h1>Revisión de bitácoras reflexivas</h1>
+{% for log in logs %}
+<article class="panel neuro-panel log-entry"><strong>{{ log.estudiante }}</strong> · {{ log.caso }} · Escenario {{ log.scenario_index + 1 }}<p>{{ log.contenido }}</p><small>{{ log.created_at[:16] }}</small></article>
+{% else %}<p class="empty-state">Sin bitácoras.</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Grupo | Docente{% endblock %}
+{% block module_content %}
+<h1>Estudiantes del grupo</h1>
+<div class="table-wrap"><table class="data-table"><thead><tr><th>Nombre</th><th>Email</th><th>Intentos</th><th>Promedio</th></tr></thead><tbody>
+{% for s in stats %}<tr><td>{{ s.nombre }}</td><td>{{ s.email }}</td><td>{{ s.intentos }}</td><td>{{ s.promedio }}%</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}
