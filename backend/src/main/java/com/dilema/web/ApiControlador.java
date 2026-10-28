@@ -122,7 +122,7 @@ public class ApiControlador {
 
     @PostMapping("/docente/grupos/{id}/estudiantes")
     Contratos.GrupoVista agregar(@PathVariable Long id, @RequestBody Contratos.EstudianteIn cuerpo, HttpServletRequest request) {
-        return academia.agregarEstudiante(docente(request), id, cuerpo.email());
+        return academia.agregarEstudiante(docente(request), id, cuerpo.nombre(), cuerpo.email());
     }
 
     @DeleteMapping("/docente/grupos/{id}/estudiantes/{estudianteId}")
@@ -179,8 +179,8 @@ public class ApiControlador {
     }
 
     @PostMapping("/admin/usuarios/{id}/permisos")
-    Contratos.UsuarioVista permiso(@PathVariable Long id, @RequestBody Contratos.PermisoIn cuerpo, HttpServletRequest request) {
-        return admin.permiso(admin(request), id, cuerpo);
+    Contratos.UsuarioVista permiso(@PathVariable Long id, @RequestBody Contratos.PermisosIn cuerpo, HttpServletRequest request) {
+        return admin.permiso(admin(request), id, cuerpo.permisos());
     }
 
     @GetMapping("/admin/grupos")

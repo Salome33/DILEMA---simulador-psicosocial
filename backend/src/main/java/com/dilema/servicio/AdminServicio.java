@@ -5,9 +5,11 @@ import com.dilema.modelo.Catalogo;
 import com.dilema.modelo.Usuario;
 import com.dilema.repo.GrupoRepo;
 import com.dilema.repo.UsuarioRepo;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,25 +17,30 @@ public class AdminServicio {
     private final UsuarioRepo usuarios;
     private final GrupoRepo grupos;
     private final ProxyOperacion proxy;
-    private final AuthServicio auth;
     private final Mapeador mapeador;
+    private final FabricaCuentas fabrica;
+    private final PasswordEncoder cifrado;
 
     public AdminServicio(UsuarioRepo usuarios, GrupoRepo grupos, ProxyOperacion proxy,
-                         AuthServicio auth, Mapeador mapeador) {
+                         Mapeador mapeador, FabricaCuentas fabrica, PasswordEncoder cifrado) {
         this.usuarios = usuarios;
         this.grupos = grupos;
         this.proxy = proxy;
-        this.auth = auth;
         this.mapeador = mapeador;
+        this.fabrica = fabrica;
+        this.cifrado = cifrado;
     }
 
     @Transactional(readOnly = true)
     public List<Contratos.UsuarioVista> usuarios(Usuario admin) {
         proxy.gestionarUsuarios(admin);
-        return usuarios.findAll().stream().map(mapeador::usuario).toList();
+        List<Usuario> cuentas = new ArrayList<>();
+        cuentas.addAll(usuarios.findByRol(Catalogo.Rol.ADMIN));
+        cuentas.addAll(usuarios.findByRol(Catalogo.Rol.PROFESOR));
+        return cuentas.stream().map(mapeador::usuario).toList();
     }
 
-    /** Factory Method (RF-03): el alta elige el rol y deja la clave vacía si es estudiante. */
+    /** El administrador crea docentes. El estudiante lo registra el docente de su grupo. */
     @Transactional
     public Contratos.UsuarioVista crear(Usuario admin, Contratos.UsuarioIn entrada) {
         proxy.gestionarUsuarios(admin);
@@ -44,21 +51,29 @@ public class AdminServicio {
             throw new ReglaNegocio("Ya existe una cuenta con ese correo.");
         }
         Catalogo.Rol rol = rolDe(entrada.rol());
-        if (rol != Catalogo.Rol.ESTUDIANTE && (entrada.clave() == null || entrada.clave().length() < 6)) {
-            throw new ReglaNegocio("Docente y administración necesitan una clave de al menos 6 caracteres.");
+        if (rol == Catalogo.Rol.ESTUDIANTE) {
+            throw new ReglaNegocio("El docente registra y matricula a los estudiantes.");
         }
-        Usuario nuevo = fabricar(rol);
+        if (entrada.clave() == null || entrada.clave().length() < 6) {
+            throw new ReglaNegocio("La clave debe tener al menos 6 caracteres.");
+        }
+        Usuario nuevo = rol == Catalogo.Rol.PROFESOR ? fabrica.nuevoDocente() : fabrica.nuevoAdministrador();
         nuevo.nombre = entrada.nombre().trim();
         nuevo.email = entrada.email().trim().toLowerCase();
-        if (rol != Catalogo.Rol.ESTUDIANTE) nuevo.contrasena = auth.cifrado().encode(entrada.clave());
+        nuevo.contrasena = cifrado.encode(entrada.clave());
         usuarios.save(nuevo);
         return mapeador.usuario(nuevo);
     }
 
     @Transactional
-    public Contratos.UsuarioVista permiso(Usuario admin, Long id, Contratos.PermisoIn entrada) {
+    public Contratos.UsuarioVista permiso(Usuario admin, Long id, List<String> extras) {
         proxy.gestionarUsuarios(admin);
-        throw new ReglaNegocio("RF-02: lo que puede hacer cada persona lo define su rol, no un permiso aparte.");
+        Usuario docente = usuarios.findById(id).orElseThrow(() -> new NoEncontrado("Docente no encontrado."));
+        if (docente.rol != Catalogo.Rol.PROFESOR) {
+            throw new ReglaNegocio("Solo se administran los permisos de un docente.");
+        }
+        fabrica.reemplazarPermisosDocente(docente, extras);
+        return mapeador.usuario(docente);
     }
 
     @Transactional(readOnly = true)
@@ -79,45 +94,7 @@ public class AdminServicio {
             case "DOCENTE", "PROFESOR" -> Catalogo.Rol.PROFESOR;
             case "ADMIN", "ADMINISTRADOR" -> Catalogo.Rol.ADMIN;
             case "ESTUDIANTE" -> Catalogo.Rol.ESTUDIANTE;
-            default -> throw new ReglaNegocio("El rol debe ser estudiante, docente o administración.");
+            default -> throw new ReglaNegocio("El rol debe ser docente o administración.");
         };
-    }
-
-    private Usuario fabricar(Catalogo.Rol rol) {
-        CreadorUsuario creador = switch (rol) {
-            case PROFESOR -> new CreadorDocente();
-            case ADMIN -> new CreadorAdministrador();
-            case ESTUDIANTE -> new CreadorEstudiante();
-        };
-        return creador.crear();
-    }
-
-    interface CreadorUsuario { Usuario crear(); }
-
-    static class CreadorDocente implements CreadorUsuario {
-        public Usuario crear() {
-            Usuario usuario = new Usuario();
-            usuario.rol = Catalogo.Rol.PROFESOR;
-            usuario.activo = true;
-            return usuario;
-        }
-    }
-
-    static class CreadorAdministrador implements CreadorUsuario {
-        public Usuario crear() {
-            Usuario usuario = new Usuario();
-            usuario.rol = Catalogo.Rol.ADMIN;
-            usuario.activo = true;
-            return usuario;
-        }
-    }
-
-    static class CreadorEstudiante implements CreadorUsuario {
-        public Usuario crear() {
-            Usuario usuario = new Usuario();
-            usuario.rol = Catalogo.Rol.ESTUDIANTE;
-            usuario.activo = true;
-            return usuario;
-        }
     }
 }
