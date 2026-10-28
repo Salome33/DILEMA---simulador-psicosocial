@@ -40,6 +40,10 @@ h3 { font-size: 15px; font-weight: 650; }
 .main { padding: 22px 24px 40px; }
 .login-page { min-height: 100vh; display: grid; grid-template-rows: 52px 1fr; }
 .login-wrap { display: grid; place-items: center; padding: 24px; }
+.ingreso-dos { grid-template-columns: repeat(auto-fit, minmax(280px, 420px)); gap: 16px; justify-content: center; align-items: start; }
+.ingreso-dos mat-card { width: 100%; }
+mat-form-field { width: 100%; }
+mat-toolbar.topbar { height: 56px; }
 .login-card { width: min(460px, 100%); background: var(--paper); border: 1px solid var(--line); padding: 28px; }
 .enlace { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; justify-self: center; }
 .app-frame.superior .work { grid-template-columns: 1fr; }
@@ -61,7 +65,7 @@ h3 { font-size: 15px; font-weight: 650; }
 .filtros select, .filtros input { height: 42px; }
 table .btn-ghost { width: auto; padding: 6px 10px; display: inline-block; }
 
-.card, .panel, .item {
+mat-card, .card, .panel, .item {
   background: var(--paper); border: 1px solid var(--line); border-radius: 0; padding: 16px;
 }
 .kicker { color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }

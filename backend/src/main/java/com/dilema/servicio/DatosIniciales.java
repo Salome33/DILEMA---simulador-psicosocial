@@ -3,7 +3,7 @@ package com.dilema.servicio;
 import com.dilema.modelo.*;
 import com.dilema.repo.*;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,22 +18,30 @@ public class DatosIniciales implements CommandLineRunner {
     private final SesionRepo sesiones;
     private final SesionEstudianteRepo autorizados;
     private final EscenarioPersonajeRepo vinculos;
+    private final FabricaCuentas fabrica;
+    private final PasswordEncoder cifrado;
 
     public DatosIniciales(UsuarioRepo usuarios, GrupoRepo grupos, CasoRepo casos, SesionRepo sesiones,
-                          SesionEstudianteRepo autorizados, EscenarioPersonajeRepo vinculos) {
+                          SesionEstudianteRepo autorizados, EscenarioPersonajeRepo vinculos,
+                          FabricaCuentas fabrica, PasswordEncoder cifrado) {
         this.usuarios = usuarios;
         this.grupos = grupos;
         this.casos = casos;
         this.sesiones = sesiones;
         this.autorizados = autorizados;
         this.vinculos = vinculos;
+        this.fabrica = fabrica;
+        this.cifrado = cifrado;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
-        if (usuarios.count() > 0) return;
-        BCryptPasswordEncoder cifrado = new BCryptPasswordEncoder();
+        fabrica.asegurarCatalogo();
+        if (usuarios.count() > 0) {
+            usuarios.findAll().forEach(fabrica::otorgarSiVacio);
+            return;
+        }
 
         Usuario admin = cuenta("Administración DILEMA", "admin@psicosim.edu", "admin123", Catalogo.Rol.ADMIN, cifrado);
         Usuario docente = cuenta("Docente de práctica", "docente@psicosim.edu", "docente123", Catalogo.Rol.PROFESOR, cifrado);
@@ -45,6 +53,8 @@ public class DatosIniciales implements CommandLineRunner {
         usuarios.save(admin);
         usuarios.save(docente);
         usuarios.save(estudiante);
+        fabrica.otorgarSiVacio(admin);
+        fabrica.otorgarSiVacio(docente);
 
         Grupo grupo = new Grupo();
         grupo.nombre = "Psicología Social";
@@ -114,7 +124,7 @@ public class DatosIniciales implements CommandLineRunner {
         autorizados.save(fila);
     }
 
-    private Usuario cuenta(String nombre, String email, String clave, Catalogo.Rol rol, BCryptPasswordEncoder cifrado) {
+    private Usuario cuenta(String nombre, String email, String clave, Catalogo.Rol rol, PasswordEncoder cifrado) {
         Usuario usuario = new Usuario();
         usuario.nombre = nombre;
         usuario.email = email;

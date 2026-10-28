@@ -1,31 +1,47 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MarcoComponent } from '../shared/marco.component';
 import { Usuario, mensajeError } from '../core/api.service';
 
 const enlaces = [
-  { href: '/admin/usuarios', texto: 'Usuarios', exacto: true },
-  { href: '/admin/usuarios/nuevo', texto: 'Crear usuario', exacto: true },
+  { href: '/admin/usuarios', texto: 'Docentes', exacto: true },
+  { href: '/admin/usuarios/nuevo', texto: 'Nuevo docente', exacto: true },
   { href: '/admin/configuracion', texto: 'Configuración global', exacto: true }
 ];
 
+const material = [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule];
+
 @Component({
   selector: 'app-usuarios',
-  imports: [MarcoComponent],
+  imports: [MarcoComponent, RouterLink, ...material],
   template: `
     <app-marco [enlaces]="enlaces">
-      <section class="card stack">
-        <h1>Usuarios</h1>
-        <p class="sub">Cuentas del simulador. El acceso de cada persona lo define su rol.</p>
-        @for (usuario of usuarios(); track usuario.id) {
-          <article class="item">
-            <h3>{{ usuario.nombre }}</h3>
-            <p class="sub">{{ usuario.email }} · {{ usuario.rol }}</p>
-          </article>
-        }
-      </section>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Docentes</mat-card-title>
+          <mat-card-subtitle>El administrador crea docentes y asigna permisos. Los estudiantes los matricula el docente.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="stack">
+          @for (usuario of usuarios(); track usuario.id) {
+            <article class="item">
+              <h3>{{ usuario.nombre }}</h3>
+              <p class="sub">{{ usuario.email }} · {{ usuario.rol === 'PROFESOR' ? 'Docente' : 'Administración' }}</p>
+              <p class="sub">{{ usuario.permisos.join(', ') || 'Sin permisos' }}</p>
+              @if (usuario.rol === 'PROFESOR') {
+                <a mat-stroked-button [routerLink]="['/admin/usuarios', usuario.id]">Permisos</a>
+              }
+            </article>
+          }
+        </mat-card-content>
+      </mat-card>
     </app-marco>
   `
 })
@@ -40,25 +56,41 @@ export class UsuariosComponent {
 
 @Component({
   selector: 'app-crear-usuario',
-  imports: [MarcoComponent, FormsModule],
+  imports: [MarcoComponent, FormsModule, ...material],
   template: `
     <app-marco [enlaces]="enlaces">
-      <section class="card stack">
-        <h1>Registrar nuevo usuario</h1>
-        <label class="field"><span>Nombre completo</span><input [(ngModel)]="nombre" /></label>
-        <label class="field"><span>Correo electrónico</span><input [(ngModel)]="email" /></label>
-        <label class="field"><span>Rol</span>
-          <select [(ngModel)]="rol">
-            <option value="PROFESOR">Docente</option>
-            <option value="ESTUDIANTE">Estudiante</option>
-            <option value="ADMIN">Administración</option>
-          </select>
-        </label>
-        <label class="field"><span>Contraseña temporal</span><input [(ngModel)]="clave" type="password" autocomplete="new-password" /></label>
-        <p class="sub">La contraseña se entrega por un canal seguro. No queda visible en el listado.</p>
-        @if (error()) { <p class="error">{{ error() }}</p> }
-        <button class="btn" type="button" (click)="crear()">Guardar usuario</button>
-      </section>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Nuevo docente</mat-card-title>
+          <mat-card-subtitle>Nace con el rol docente y solo el permiso Visualizar.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="stack">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre completo</mat-label>
+            <input matInput [(ngModel)]="nombre" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Correo electrónico</mat-label>
+            <input matInput [(ngModel)]="email" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Rol</mat-label>
+            <mat-select [(ngModel)]="rol">
+              <mat-option value="PROFESOR">Docente</mat-option>
+              <mat-option value="ADMIN">Administración</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox disabled [checked]="true">Visualizar</mat-checkbox>
+          <mat-form-field appearance="outline">
+            <mat-label>Contraseña</mat-label>
+            <input matInput [(ngModel)]="clave" type="password" autocomplete="new-password" />
+          </mat-form-field>
+          @if (error()) { <p class="error">{{ error() }}</p> }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" type="button" (click)="crear()">Guardar</button>
+        </mat-card-actions>
+      </mat-card>
     </app-marco>
   `
 })
@@ -80,26 +112,85 @@ export class CrearUsuarioComponent {
 }
 
 @Component({
-  selector: 'app-configuracion',
-  imports: [MarcoComponent, FormsModule],
+  selector: 'app-permisos-docente',
+  imports: [MarcoComponent, FormsModule, ...material],
   template: `
     <app-marco [enlaces]="enlaces">
-      <section class="card stack">
-        <p class="kicker">Configuración global del sistema</p>
-        <h1>Parámetros generales</h1>
-        <label class="field"><span>Nombre del sistema</span><input [(ngModel)]="config.nombre" /></label>
-        <label class="field"><span>Correo de soporte</span><input [(ngModel)]="config.soporte" /></label>
-        <label class="field"><span>Zona horaria</span><input [(ngModel)]="config.zona" /></label>
-        <label class="field"><span>Inactividad máxima (minutos)</span><input type="number" [(ngModel)]="config.inactividad" /></label>
-        <label class="check"><input type="checkbox" [(ngModel)]="config.notificar" /> Habilitar notificaciones por correo</label>
-        <label class="check"><input type="checkbox" [(ngModel)]="config.docentePublica" /> Permitir que el docente publique sin aprobación previa</label>
-        <div class="grid-2">
-          <label class="field"><span>Escala mínima</span><input type="number" step="0.1" [(ngModel)]="config.escalaMin" /></label>
-          <label class="field"><span>Escala máxima</span><input type="number" step="0.1" [(ngModel)]="config.escalaMax" /></label>
-        </div>
-        @if (ok()) { <p class="ok">{{ ok() }}</p> }
-        <button class="btn" type="button" (click)="guardar()">Guardar configuración</button>
-      </section>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Permisos de {{ nombre() }}</mat-card-title>
+          <mat-card-subtitle>Visualizar permanece. Editar permite crear casos. Gestionar espacios permite crear grupos.</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="stack">
+          <mat-checkbox disabled [checked]="true">Visualizar</mat-checkbox>
+          <mat-checkbox [(ngModel)]="editar">Editar casos</mat-checkbox>
+          <mat-checkbox [(ngModel)]="gestionar">Gestionar espacios académicos</mat-checkbox>
+          @if (error()) { <p class="error">{{ error() }}</p> }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" type="button" (click)="guardar()">Guardar permisos</button>
+        </mat-card-actions>
+      </mat-card>
+    </app-marco>
+  `
+})
+export class PermisosDocenteComponent {
+  enlaces = enlaces;
+  private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private id = Number(this.route.snapshot.paramMap.get('id'));
+  nombre = signal('');
+  editar = false;
+  gestionar = false;
+  error = signal('');
+  constructor() {
+    this.http.get<Usuario[]>('/api/admin/usuarios').subscribe((lista) => {
+      const docente = lista.find((usuario) => usuario.id === this.id);
+      if (!docente || docente.rol !== 'PROFESOR') {
+        this.router.navigateByUrl('/admin/usuarios');
+        return;
+      }
+      this.nombre.set(docente.nombre);
+      this.editar = docente.permisos.includes('EDITAR');
+      this.gestionar = docente.permisos.includes('GESTIONAR_ESPACIOS_ACADEMICOS');
+    });
+  }
+  guardar() {
+    const permisos = [
+      ...(this.editar ? ['EDITAR'] : []),
+      ...(this.gestionar ? ['GESTIONAR_ESPACIOS_ACADEMICOS'] : [])
+    ];
+    this.http.post(`/api/admin/usuarios/${this.id}/permisos`, { permisos }).subscribe({
+      next: () => this.router.navigateByUrl('/admin/usuarios'),
+      error: (falla) => this.error.set(mensajeError(falla))
+    });
+  }
+}
+
+@Component({
+  selector: 'app-configuracion',
+  imports: [MarcoComponent, FormsModule, ...material],
+  template: `
+    <app-marco [enlaces]="enlaces">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Parámetros generales</mat-card-title>
+          <mat-card-subtitle>Configuración de este navegador</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="stack">
+          <mat-form-field appearance="outline"><mat-label>Nombre del sistema</mat-label><input matInput [(ngModel)]="config.nombre" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Correo de soporte</mat-label><input matInput [(ngModel)]="config.soporte" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Zona horaria</mat-label><input matInput [(ngModel)]="config.zona" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Inactividad máxima (minutos)</mat-label><input matInput type="number" [(ngModel)]="config.inactividad" /></mat-form-field>
+          <mat-checkbox [(ngModel)]="config.notificar">Habilitar notificaciones por correo</mat-checkbox>
+          <mat-checkbox [(ngModel)]="config.docentePublica">Permitir que el docente publique sin aprobación previa</mat-checkbox>
+          @if (ok()) { <p class="ok">{{ ok() }}</p> }
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="primary" type="button" (click)="guardar()">Guardar configuración</button>
+        </mat-card-actions>
+      </mat-card>
     </app-marco>
   `
 })

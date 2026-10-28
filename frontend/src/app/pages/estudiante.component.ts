@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MarcoComponent } from '../shared/marco.component';
 import { Aviso, PanelEstudiante, Participacion, Sesion, mensajeError } from '../core/api.service';
 
@@ -12,7 +14,7 @@ const enlaces = [
 
 @Component({
   selector: 'app-panel-estudiante',
-  imports: [MarcoComponent, RouterLink, FormsModule],
+  imports: [MarcoComponent, RouterLink, FormsModule, MatButtonModule, MatCardModule],
   template: `
     <app-marco [enlaces]="enlaces" modo="superior">
       <section class="stack">
@@ -37,9 +39,9 @@ const enlaces = [
                 <small>{{ barra(sesion) }}% de avance</small>
               </div>
               @if (sesion.participacionEstado === 'FINALIZADA' && sesion.participacionId) {
-                <a class="btn-ghost" [routerLink]="['/estudiante/participacion', sesion.participacionId]">Ver resultados</a>
+                <a mat-stroked-button [routerLink]="['/estudiante/participacion', sesion.participacionId]">Ver resultados</a>
               } @else {
-                <a class="btn" [routerLink]="['/estudiante/sesion', sesion.id]">Ingresar al caso</a>
+                <a mat-flat-button color="primary" [routerLink]="['/estudiante/sesion', sesion.id]">Ingresar al caso</a>
               }
             </article>
           } @empty { <p class="sub">No tienes casos asignados.</p> }
@@ -85,7 +87,7 @@ export class PanelEstudianteComponent {
 
 @Component({
   selector: 'app-briefing',
-  imports: [MarcoComponent, RouterLink, FormsModule],
+  imports: [MarcoComponent, RouterLink, FormsModule, MatButtonModule, MatCardModule],
   template: `
     <app-marco [enlaces]="enlaces" modo="superior">
       @if (sesion(); as actual) {
@@ -113,11 +115,11 @@ export class PanelEstudianteComponent {
           <label class="check"><input type="checkbox" [(ngModel)]="acepto" /> He leído y acepto las reglas de participación.</label>
           @if (error()) { <p class="error">{{ error() }}</p> }
           <div class="row">
-            <a class="btn-ghost" routerLink="/estudiante">Volver al panel</a>
+            <a mat-stroked-button routerLink="/estudiante">Volver al panel</a>
             @if (actual.participacionEstado === 'FINALIZADA' && actual.participacionId) {
-              <button class="btn" type="button" (click)="ver(actual.participacionId)">Ver resultados</button>
+              <button mat-flat-button color="primary" type="button" (click)="ver(actual.participacionId)">Ver resultados</button>
             } @else {
-              <button class="btn" type="button" [disabled]="!acepto" (click)="iniciar(actual)">Iniciar simulación</button>
+              <button mat-flat-button color="primary" type="button" [disabled]="!acepto" (click)="iniciar(actual)">Iniciar simulación</button>
             }
           </div>
         </section>
@@ -150,7 +152,7 @@ export class BriefingComponent {
 }
 
 @Component({
-  imports: [MarcoComponent, RouterLink],
+  imports: [MarcoComponent, RouterLink, MatButtonModule, MatCardModule],
   template: `
     <app-marco [enlaces]="enlaces" modo="superior">
       @if (juego(); as actual) {
@@ -176,7 +178,7 @@ export class BriefingComponent {
                 }
               </article>
             }
-            <a class="btn-ghost" routerLink="/estudiante">Volver al panel</a>
+            <a mat-stroked-button routerLink="/estudiante">Volver al panel</a>
           </section>
         } @else {
           @if (pregunta(); as item) {
@@ -204,11 +206,11 @@ export class BriefingComponent {
               </article>
               @if (error()) { <p class="error">{{ error() }}</p> }
               <div class="row">
-                <button class="btn-ghost" type="button" (click)="deshacer()">Deshacer</button>
+                <button mat-stroked-button type="button" (click)="deshacer()">Deshacer</button>
                 @if (indice() < actual.preguntas.length - 1) {
-                  <button class="btn" type="button" (click)="mover(1)">Siguiente escena</button>
+                  <button mat-flat-button color="primary" type="button" (click)="mover(1)">Siguiente escena</button>
                 } @else {
-                  <button class="btn" type="button" (click)="finalizar()">Finalizar</button>
+                  <button mat-flat-button color="primary" type="button" (click)="finalizar()">Finalizar</button>
                 }
               </div>
             </section>
@@ -278,7 +280,7 @@ export class SimulacionComponent {
 
 @Component({
   selector: 'app-avisos',
-  imports: [MarcoComponent],
+  imports: [MarcoComponent, MatButtonModule, MatCardModule],
   template: `
     <app-marco [enlaces]="enlaces" modo="superior">
       <section class="card stack">
@@ -287,7 +289,7 @@ export class SimulacionComponent {
             <p class="kicker">Notificaciones</p>
             <h1>Centro de avisos</h1>
           </div>
-          <button class="btn" type="button" (click)="marcar()">Marcar todo como leído</button>
+          <button mat-flat-button color="primary" type="button" (click)="marcar()">Marcar todo como leído</button>
         </div>
         @for (aviso of visibles(); track aviso.id) {
           <article class="item">
