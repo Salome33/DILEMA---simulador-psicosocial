@@ -5,10 +5,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MarcoComponent } from '../shared/marco.component';
 import { EditorTextoComponent } from '../shared/editor-texto.component';
 import { Caso, CasoResumen, Fila, Grupo, Participacion, Sesion, mensajeError } from '../core/api.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { AuthService } from '../core/auth.service';
 
 const enlaces = [
   { href: '/docente/casos', texto: 'Mis Casos', exacto: true },
-  { href: '/docente/casos/nuevo', texto: 'Crear Caso', exacto: true },
   { href: '/docente/grupos', texto: 'Grupos', exacto: true },
   { href: '/docente/seguimiento', texto: 'Reportes' }
 ];
@@ -30,15 +32,15 @@ function casoVacio(): Caso {
 
 @Component({
   selector: 'app-panel-docente',
-  imports: [MarcoComponent, RouterLink],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, RouterLink],
   template: `
     <app-marco [enlaces]="enlaces">
       <section class="card stack">
         <p class="kicker">Docente</p>
         <h1>Diseño y seguimiento</h1>
         <p class="sub">Arma el caso en borrador, publícalo cuando la rúbrica cierre y prográmalo con un grupo.</p>
-        <a class="btn" routerLink="/docente/casos/nuevo">Nuevo caso</a>
-        <a class="btn-ghost" routerLink="/docente/programar">Programar sesión</a>
+        <a mat-stroked-button routerLink="/docente/casos">Ver casos</a>
+        <a mat-stroked-button routerLink="/docente/programar">Programar sesión</a>
       </section>
     </app-marco>
   `
@@ -47,11 +49,11 @@ export class PanelDocenteComponent { enlaces = enlaces; }
 
 @Component({
   selector: 'app-casos',
-  imports: [MarcoComponent, RouterLink],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, RouterLink],
   template: `
     <app-marco [enlaces]="enlaces">
       <section class="card stack">
-        <div class="row"><h1>Mis casos</h1><a class="btn-ghost" routerLink="/docente/casos/nuevo">Crear caso</a></div>
+        <div class="row"><h1>Mis casos</h1>@if (puedeEditar()) { <a mat-stroked-button routerLink="/docente/casos/nuevo">Crear caso</a> }</div>
         @for (caso of casos(); track caso.id) {
           <a class="item" [routerLink]="['/docente/casos', caso.id]">
             <small>{{ caso.estado }} · {{ caso.bloques }} escenarios · {{ caso.preguntas }} preguntas</small>
@@ -65,7 +67,9 @@ export class PanelDocenteComponent { enlaces = enlaces; }
 export class CasosComponent {
   enlaces = enlaces;
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
   casos = signal<CasoResumen[]>([]);
+  puedeEditar() { return this.auth.puede('EDITAR'); }
   constructor() { this.http.get<CasoResumen[]>('/api/docente/casos').subscribe((dato) => this.casos.set(dato)); }
 }
 
@@ -73,7 +77,7 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
 
 @Component({
   selector: 'app-editor-caso',
-  imports: [MarcoComponent, FormsModule, RouterLink, EditorTextoComponent],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, FormsModule, RouterLink, EditorTextoComponent],
   template: `
     <app-marco [enlaces]="enlaces" ancho="ancho">
       <section class="stack">
@@ -82,7 +86,7 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
             <p class="kicker">Creación / edición de caso</p>
             <h1>{{ caso.nombre || 'Crear caso de estudio clínico' }}</h1>
           </div>
-          <a class="btn-ghost" routerLink="/docente/casos">Volver</a>
+          <a mat-stroked-button routerLink="/docente/casos">Volver</a>
         </div>
         <div class="pasos">
           @for (paso of pasos; track paso.id) {
@@ -113,10 +117,10 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
               <article class="item stack">
                 <label class="field"><span>NOMBRE DEL ESCENARIO</span><input [(ngModel)]="bloque.nombre" [disabled]="bloqueado()" /></label>
                 <label class="field"><span>CONTEXTO SITUACIONAL</span><textarea [(ngModel)]="bloque.contexto" [disabled]="bloqueado()"></textarea></label>
-                @if (!bloqueado()) { <button class="btn-amber" type="button" (click)="caso.bloques.splice($index, 1)">Quitar escenario</button> }
+                @if (!bloqueado()) { <button mat-stroked-button type="button" (click)="caso.bloques.splice($index, 1)">Quitar escenario</button> }
               </article>
             }
-            @if (!bloqueado()) { <button class="btn-ghost" type="button" (click)="agregarBloque()">Agregar escenario académico</button> }
+            @if (!bloqueado()) { <button mat-stroked-button type="button" (click)="agregarBloque()">Agregar escenario académico</button> }
           </section>
         }
 
@@ -144,12 +148,12 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
                       </div>
                     }
                     @if (!bloqueado()) {
-                      <button class="btn-ghost" type="button" (click)="pregunta.opciones.push(opcionVacia())">Agregar opción</button>
-                      <button class="btn-amber" type="button" (click)="bloque.preguntas.splice($index, 1)">Quitar pregunta</button>
+                      <button mat-stroked-button type="button" (click)="pregunta.opciones.push(opcionVacia())">Agregar opción</button>
+                      <button mat-stroked-button type="button" (click)="bloque.preguntas.splice($index, 1)">Quitar pregunta</button>
                     }
                   </div>
                 }
-                @if (!bloqueado()) { <button class="btn" type="button" (click)="bloque.preguntas.push(preguntaVacia())">Agregar pregunta</button> }
+                @if (!bloqueado()) { <button mat-flat-button color="primary" type="button" (click)="bloque.preguntas.push(preguntaVacia())">Agregar pregunta</button> }
               </article>
             }
           </section>
@@ -204,12 +208,12 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
           <section class="card stack">
             <p class="kicker">{{ caso.estado || 'SIN GUARDAR' }}</p>
             <p class="sub">Publicar exige nombre, desarrollo, contexto, al menos un escenario con preguntas, una sola opción correcta, su explicación y pesos que sumen 5,0.</p>
-            @if (!bloqueado()) { <button class="btn" type="button" (click)="guardar()">Guardar borrador</button> }
-            @if (caso.id && caso.estado === 'BORRADOR') { <button class="btn" type="button" (click)="publicar()">Publicar</button> }
-            @if (caso.estado === 'PUBLICADO') { <button class="btn-amber" type="button" (click)="archivar()">Archivar</button> }
-            @if (caso.estado === 'PUBLICADO') { <button class="btn-ghost" type="button" (click)="despublicar()">Volver a borrador</button> }
-            @if (caso.estado === 'ARCHIVADO') { <button class="btn" type="button" (click)="publicar()">Volver a publicar</button> }
-            @if (caso.id) { <button class="btn-ghost" type="button" (click)="duplicar()">Duplicar</button> }
+            @if (!bloqueado()) { <button mat-flat-button color="primary" type="button" (click)="guardar()">Guardar borrador</button> }
+            @if (caso.id && caso.estado === 'BORRADOR') { <button mat-flat-button color="primary" type="button" (click)="publicar()">Publicar</button> }
+            @if (caso.estado === 'PUBLICADO') { <button mat-stroked-button type="button" (click)="archivar()">Archivar</button> }
+            @if (caso.estado === 'PUBLICADO') { <button mat-stroked-button type="button" (click)="despublicar()">Volver a borrador</button> }
+            @if (caso.estado === 'ARCHIVADO') { <button mat-flat-button color="primary" type="button" (click)="publicar()">Volver a publicar</button> }
+            @if (caso.id) { <button mat-stroked-button type="button" (click)="duplicar()">Duplicar</button> }
           </section>
         }
         @if (vistaPrevia()) {
@@ -221,8 +225,8 @@ interface PersonaEscena { id: string; nombre: string; color: string; x: number; 
           </section>
         }
         <div class="row">
-          @if (!bloqueado()) { <button class="btn-ghost" type="button" (click)="guardar()">Guardar borrador</button> }
-          <button class="btn-ghost" type="button" (click)="vistaPrevia.set(!vistaPrevia())">Previsualizar</button>
+          @if (!bloqueado()) { <button mat-stroked-button type="button" (click)="guardar()">Guardar borrador</button> }
+          <button mat-stroked-button type="button" (click)="vistaPrevia.set(!vistaPrevia())">Previsualizar</button>
         </div>
       </section>
     </app-marco>
@@ -262,10 +266,15 @@ export class EditorCasoComponent {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
   private claveBoceto = 'dilema-boceto-nuevo';
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
+    if (!id && !this.auth.puede('EDITAR')) {
+      this.router.navigateByUrl('/docente/casos');
+      return;
+    }
     this.claveBoceto = `dilema-boceto-${id ?? 'nuevo'}`;
     const guardado = localStorage.getItem(this.claveBoceto);
     if (guardado) {
@@ -287,7 +296,9 @@ export class EditorCasoComponent {
       });
     }
   }
-  bloqueado() { return this.caso.estado === 'PUBLICADO' || this.caso.estado === 'ARCHIVADO'; }
+  bloqueado() {
+    return !this.auth.puede('EDITAR') || this.caso.estado === 'PUBLICADO' || this.caso.estado === 'ARCHIVADO';
+  }
   sincronizarPersona(indice: number) {
     const nombre = this.caso.personajes[indice]?.nombre;
     if (!nombre) return;
@@ -378,7 +389,7 @@ export class EditorCasoComponent {
 
 @Component({
   selector: 'app-grupos',
-  imports: [MarcoComponent, FormsModule, RouterLink],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, FormsModule, RouterLink],
   template: `
     <app-marco [enlaces]="enlaces">
       <section class="stack">
@@ -389,11 +400,11 @@ export class EditorCasoComponent {
         @if (error()) { <p class="error">{{ error() }}</p> }
         <div class="dos">
           <section class="card stack">
-            <div class="row"><h2>Mis grupos</h2><button class="btn-ghost" type="button" (click)="nuevo.set(!nuevo())">Nuevo grupo</button></div>
+            <div class="row"><h2>Mis grupos</h2>@if (puedeGestionar()) { <button mat-stroked-button type="button" (click)="nuevo.set(!nuevo())">Nuevo grupo</button> }</div>
             @if (nuevo()) {
               <label class="field"><span>Nombre</span><input [(ngModel)]="nombre" /></label>
               <label class="field"><span>Semestre</span><input [(ngModel)]="espacio" placeholder="2026-I" /></label>
-              <button class="btn" type="button" (click)="crear()">Crear grupo</button>
+              <button mat-flat-button color="primary" type="button" (click)="crear()">Crear grupo</button>
             }
             @for (grupo of grupos(); track grupo.id) {
               <button class="item grupo-item" type="button" [class.activa]="seleccionado() === grupo.id" (click)="elegir(grupo.id)">
@@ -409,14 +420,18 @@ export class EditorCasoComponent {
                   <h2>{{ grupo.nombre }}</h2>
                   <p class="sub">{{ grupo.espacioAcademico }}</p>
                 </div>
-                <a class="btn" [routerLink]="['/docente/programar']" [queryParams]="{ grupo: grupo.id }">Asignar caso a grupo</a>
+                <a mat-flat-button color="primary" [routerLink]="['/docente/programar']" [queryParams]="{ grupo: grupo.id }">Asignar caso a grupo</a>
               </div>
-              <label class="field"><span>Añadir estudiante por correo</span>
+              <label class="field"><span>Nombre del estudiante</span>
+                <input [(ngModel)]="nombres[grupo.id]" placeholder="Nombre completo" />
+              </label>
+              <label class="field"><span>Correo institucional</span>
                 <div class="row">
                   <input [(ngModel)]="correos[grupo.id]" placeholder="estudiante@universidad.edu" />
-                  <button class="btn-ghost" type="button" (click)="agregar(grupo.id)">Agregar</button>
+                  <button mat-stroked-button type="button" (click)="agregar(grupo.id)">Matricular</button>
                 </div>
               </label>
+              <p class="sub">El estudiante no recibe contraseña. El código llega al agendar la sesión.</p>
               <table>
                 <thead><tr><th>Nombre</th><th>Correo</th><th></th></tr></thead>
                 <tbody>
@@ -424,7 +439,7 @@ export class EditorCasoComponent {
                     <tr>
                       <td>{{ estudiante.nombre }}</td>
                       <td>{{ estudiante.email }}</td>
-                      <td><button class="btn-ghost" type="button" (click)="retirar(grupo.id, estudiante.id)">Eliminar</button></td>
+                      <td><button mat-stroked-button type="button" (click)="retirar(grupo.id, estudiante.id)">Eliminar</button></td>
                     </tr>
                   } @empty { <tr><td colspan="3">Este grupo no tiene estudiantes.</td></tr> }
                 </tbody>
@@ -446,7 +461,10 @@ export class GruposComponent {
   nombre = '';
   espacio = '';
   correos: Record<number, string> = {};
+  nombres: Record<number, string> = {};
+  private auth = inject(AuthService);
   error = signal('');
+  puedeGestionar() { return this.auth.puede('GESTIONAR_ESPACIOS_ACADEMICOS'); }
   constructor() { this.cargar(); }
   crear() {
     this.http.post<Grupo>('/api/docente/grupos', { nombre: this.nombre, espacioAcademico: this.espacio }).subscribe({
@@ -455,7 +473,7 @@ export class GruposComponent {
     });
   }
   agregar(id: number) {
-    this.http.post(`/api/docente/grupos/${id}/estudiantes`, { email: this.correos[id] ?? '' }).subscribe({
+    this.http.post(`/api/docente/grupos/${id}/estudiantes`, { nombre: this.nombres[id] ?? '', email: this.correos[id] ?? '' }).subscribe({
       next: () => this.cargar(),
       error: (falla) => this.error.set(mensajeError(falla))
     });
@@ -474,7 +492,7 @@ export class GruposComponent {
 
 @Component({
   selector: 'app-programar',
-  imports: [MarcoComponent, FormsModule, RouterLink],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, FormsModule, RouterLink],
   template: `
     <app-marco [enlaces]="enlaces">
       <section class="stack">
@@ -509,9 +527,9 @@ export class GruposComponent {
             @if (error()) { <p class="error">{{ error() }}</p> }
             @if (ok()) { <p class="ok">{{ ok() }}</p> }
             <div class="row">
-              <a class="btn-ghost" routerLink="/docente/grupos">Cancelar</a>
-              <button class="btn-ghost" type="button" (click)="borrador()">Guardar borrador</button>
-              <button class="btn" type="button" (click)="agendar()">Guardar y notificar</button>
+              <a mat-stroked-button routerLink="/docente/grupos">Cancelar</a>
+              <button mat-stroked-button type="button" (click)="borrador()">Guardar borrador</button>
+              <button mat-flat-button color="primary" type="button" (click)="agendar()">Guardar y notificar</button>
             </div>
           </section>
           <aside class="card stack">
@@ -531,8 +549,8 @@ export class GruposComponent {
             <h3>{{ sesion.caso }}</h3>
             <p class="sub">{{ sesion.grupo }} · {{ sesion.inicio }} → {{ sesion.fin }}</p>
             <div class="row">
-              @if (sesion.estado === 'SIN_INICIAR') { <button class="btn" type="button" (click)="accion(sesion.id, 'iniciar')">Iniciar</button> }
-              @if (sesion.estado === 'EN_CURSO') { <button class="btn-amber" type="button" (click)="accion(sesion.id, 'finalizar')">Finalizar</button> }
+              @if (sesion.estado === 'SIN_INICIAR') { <button mat-flat-button color="primary" type="button" (click)="accion(sesion.id, 'iniciar')">Iniciar</button> }
+              @if (sesion.estado === 'EN_CURSO') { <button mat-stroked-button type="button" (click)="accion(sesion.id, 'finalizar')">Finalizar</button> }
             </div>
           </article>
         }
@@ -617,7 +635,7 @@ export class ProgramarComponent {
 
 @Component({
   selector: 'app-seguimiento',
-  imports: [MarcoComponent, RouterLink, FormsModule],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, RouterLink, FormsModule],
   template: `
     <app-marco [enlaces]="enlaces">
       <section class="stack">
@@ -648,7 +666,7 @@ export class ProgramarComponent {
                   <td>{{ fila.nota ?? '—' }} / 5,0</td>
                   <td>{{ nivel(fila.nota) }}</td>
                   <td>
-                    @if (fila.participacionId) { <a class="btn-ghost" [routerLink]="['/docente/seguimiento', fila.participacionId]">Ver respuestas</a> }
+                    @if (fila.participacionId) { <a mat-stroked-button [routerLink]="['/docente/seguimiento', fila.participacionId]">Ver respuestas</a> }
                   </td>
                 </tr>
               } @empty { <tr><td colspan="5">No hay estudiantes en esta convocatoria.</td></tr> }
@@ -661,7 +679,7 @@ export class ProgramarComponent {
             <p>Finalizados: {{ finalizados() }} / {{ filas().length }}</p>
             <p>Pendientes: {{ filas().length - finalizados() }}</p>
             <p>Superior {{ conteo('Superior') }} · Alto {{ conteo('Alto') }} · Básico {{ conteo('Básico') }} · Bajo {{ conteo('Bajo') }}</p>
-            <button class="btn" type="button" (click)="descargar()">Descargar CSV</button>
+            <button mat-flat-button color="primary" type="button" (click)="descargar()">Descargar CSV</button>
           </aside>
         </div>
       </section>
@@ -717,7 +735,7 @@ export class SeguimientoComponent {
 
 @Component({
   selector: 'app-detalle-participacion',
-  imports: [MarcoComponent, FormsModule],
+  imports: [MatButtonModule, MatCardModule, MarcoComponent, FormsModule],
   template: `
     <app-marco [enlaces]="enlaces">
       @if (dato(); as actual) {
@@ -739,8 +757,8 @@ export class SeguimientoComponent {
           <label class="field"><span>VALORACIÓN GENERAL</span><textarea [(ngModel)]="texto" [disabled]="actual.estado !== 'FINALIZADA'"></textarea></label>
           @if (error()) { <p class="error">{{ error() }}</p> }
           @if (ok()) { <p class="ok">{{ ok() }}</p> }
-          <button class="btn" type="button" [disabled]="actual.estado !== 'FINALIZADA'" (click)="valorar(actual.id)">Guardar valoración</button>
-          <button class="btn-amber" type="button" (click)="repetir(actual.id)">Autorizar repetición</button>
+          <button mat-flat-button color="primary" type="button" [disabled]="actual.estado !== 'FINALIZADA'" (click)="valorar(actual.id)">Guardar valoración</button>
+          <button mat-stroked-button type="button" (click)="repetir(actual.id)">Autorizar repetición</button>
         </section>
       }
     </app-marco>
