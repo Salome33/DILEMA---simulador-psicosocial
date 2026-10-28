@@ -24,17 +24,15 @@ public class ParticipacionServicio {
     private final SesionEstudianteRepo autorizados;
     private final ProxyOperacion proxy;
     private final Mapeador mapeador;
-    private final BitacoraServicio bitacora;
     private final ConcurrentHashMap<Long, List<Paso>> historiales = new ConcurrentHashMap<>();
 
     public ParticipacionServicio(ParticipacionRepo participaciones, SesionRepo sesiones, SesionEstudianteRepo autorizados,
-                                 ProxyOperacion proxy, Mapeador mapeador, BitacoraServicio bitacora) {
+                                 ProxyOperacion proxy, Mapeador mapeador) {
         this.participaciones = participaciones;
         this.sesiones = sesiones;
         this.autorizados = autorizados;
         this.proxy = proxy;
         this.mapeador = mapeador;
-        this.bitacora = bitacora;
     }
 
     @Transactional(readOnly = true)
@@ -205,10 +203,6 @@ public class ParticipacionServicio {
     private void cerrar(Participacion participacion) {
         participacion.fin = LocalDateTime.now();
         participacion.fijarNota(calcularNota(participacion));
-        if (participacion.nota() != null) {
-            bitacora.avisar(participacion.estudiante, "CORREO", "Nota del caso",
-                    participacion.sesion.caso.nombre + ": " + participacion.nota() + " / 5,0.");
-        }
     }
 
     private boolean tiempoAgotado(Participacion participacion) {

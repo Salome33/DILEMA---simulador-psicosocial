@@ -1,0 +1,79 @@
+{% extends "layouts/profesor_base.html" %}
+{% block title %}Panel Profesor | PsicoSim{% endblock %}
+
+{% block module_content %}
+<header class="page-header anim-slide-up">
+    <h1>Panel del profesor</h1>
+    <p>Monitorea el progreso de tus estudiantes en la simulación.</p>
+</header>
+
+<div class="stats-grid anim-slide-up" style="--delay: 0.1s">
+    <article class="stat-card">
+        <span class="material-symbols-outlined">groups</span>
+        <strong>{{ total_estudiantes }}</strong>
+        <span>Estudiantes</span>
+    </article>
+    <article class="stat-card stat-card--highlight">
+        <span class="material-symbols-outlined">task_alt</span>
+        <strong>{{ estudiantes_activos }}</strong>
+        <span>Con intentos</span>
+    </article>
+    <article class="stat-card">
+        <span class="material-symbols-outlined">bar_chart</span>
+        <strong>{{ promedio_clase }}%</strong>
+        <span>Promedio clase</span>
+    </article>
+</div>
+
+<section class="panel anim-slide-up" style="--delay: 0.2s">
+    <div class="panel-head">
+        <h2>Estudiantes</h2>
+        <a href="{{ url_for('profesor.estudiantes') }}">Ver detalle</a>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Nombre</th><th>Intentos</th><th>Mejor</th><th>Promedio</th></tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.nombre }}</td>
+                    <td>{{ s.intentos }}</td>
+                    <td>{{ s.mejor_puntaje }}%</td>
+                    <td>{{ s.promedio }}%</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="empty-state">No hay estudiantes registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel anim-slide-up" style="--delay: 0.3s">
+    <div class="panel-head">
+        <h2>Actividad reciente</h2>
+        <a href="{{ url_for('profesor.resultados') }}">Ver todos</a>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Estudiante</th><th>Caso</th><th>Puntaje</th><th>Fecha</th></tr>
+            </thead>
+            <tbody>
+                {% for r in recent_results %}
+                <tr>
+                    <td>{{ r.nombre }}</td>
+                    <td>{{ r.caso }}</td>
+                    <td>{{ r.porcentaje }}%</td>
+                    <td>{{ r.created_at[:10] }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="empty-state">Sin actividad reciente.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

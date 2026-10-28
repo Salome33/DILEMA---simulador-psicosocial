@@ -1,0 +1,53 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}{{ 'Editar' if user else 'Nuevo' }} usuario | Admin{% endblock %}
+
+{% block module_content %}
+<header class="page-header">
+    <a class="back-link" href="{{ url_for('admin.usuarios') }}">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+    <h1>{{ 'Editar usuario' if user else 'Nuevo usuario' }}</h1>
+</header>
+
+<section class="panel form-panel">
+    <form method="post" class="admin-form">
+        <label class="field">
+            <span>Nombre completo</span>
+            <input type="text" name="nombre" required value="{{ user.nombre if user else '' }}"/>
+        </label>
+        {% if not user %}
+        <label class="field">
+            <span>Correo electrónico</span>
+            <input type="email" name="email" required placeholder="usuario@psicosim.com"/>
+        </label>
+        {% else %}
+        <label class="field">
+            <span>Correo electrónico</span>
+            <input type="email" value="{{ user.email }}" disabled/>
+        </label>
+        {% endif %}
+        <label class="field">
+            <span>Rol</span>
+            <select name="role" required>
+                {% for role in roles %}
+                <option value="{{ role }}" {% if user and user.role == role %}selected{% elif not user and role == 'estudiante' %}selected{% endif %}>{{ role_label(role) }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        {% if user %}
+        <label class="field field-check">
+            <input type="checkbox" name="activo" {% if user.activo %}checked{% endif %}/>
+            <span>Cuenta activa</span>
+        </label>
+        {% endif %}
+        <label class="field">
+            <span>{{ 'Nueva contraseña (opcional)' if user else 'Contraseña' }}</span>
+            <input type="password" name="password" {% if not user %}required{% endif %} minlength="6"/>
+        </label>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a class="btn btn-ghost" href="{{ url_for('admin.usuarios') }}">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

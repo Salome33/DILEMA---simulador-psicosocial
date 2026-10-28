@@ -22,19 +22,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/dilema
       SPRING_DATASOURCE_USERNAME: dilema
       SPRING_DATASOURCE_PASSWORD: dilema
-      SPRING_MAIL_HOST: mailpit
-      SPRING_MAIL_PORT: 1025
-      CORREO_DESDE: dilema@psicosim.edu
     depends_on:
       postgres:
         condition: service_healthy
-      mailpit:
-        condition: service_started
-  mailpit:
-    image: axllent/mailpit:v1.21
-    ports:
-      - "8025:8025"
-      - "1025:1025"
   frontend:
     build: ./frontend
     ports:

@@ -24,7 +24,7 @@ public final class Contratos {
     public record CasoResumen(Long id, String nombre, String estado, Integer tiempoEstimadoMin, int bloques, int preguntas) {}
 
     public record GrupoIn(String nombre, String espacioAcademico) {}
-    public record EstudianteIn(String nombre, String email) {}
+    public record EstudianteIn(String email) {}
     public record PersonaVista(Long id, String nombre, String email) {}
     public record GrupoVista(Long id, String nombre, String espacioAcademico, PersonaVista docente, List<PersonaVista> estudiantes) {}
 
@@ -37,7 +37,7 @@ public final class Contratos {
                               Double nota, Integer progreso) {}
 
     public record UsuarioIn(String nombre, String email, String clave, String rol) {}
-    public record PermisosIn(List<String> permisos) {}
+    public record PermisoIn(String permiso, boolean activo) {}
 
     public record Aviso(Long id, String canal, String titulo, String cuerpo, boolean leida, String fecha) {}
     public record AuditoriaVista(Long id, String fecha, String accion, String detalle, String usuario) {}

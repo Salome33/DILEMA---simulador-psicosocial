@@ -1,0 +1,57 @@
+{% extends "layouts/admin_base.html" %}
+{% block title %}Panel Admin | PsicoSim{% endblock %}
+
+{% block module_content %}
+<header class="page-header anim-slide-up">
+    <h1>Administración del sistema</h1>
+    <p>Gestión de usuarios y métricas globales.</p>
+</header>
+
+<div class="stats-grid anim-slide-up" style="--delay: 0.1s">
+    <article class="stat-card">
+        <span class="material-symbols-outlined">school</span>
+        <strong>{{ stats.by_role.get('estudiante', 0) }}</strong>
+        <span>Estudiantes</span>
+    </article>
+    <article class="stat-card">
+        <span class="material-symbols-outlined">person</span>
+        <strong>{{ stats.by_role.get('profesor', 0) }}</strong>
+        <span>Profesores</span>
+    </article>
+    <article class="stat-card stat-card--highlight">
+        <span class="material-symbols-outlined">quiz</span>
+        <strong>{{ stats.total_results }}</strong>
+        <span>Simulaciones</span>
+    </article>
+    <article class="stat-card">
+        <span class="material-symbols-outlined">insights</span>
+        <strong>{{ stats.avg_score }}%</strong>
+        <span>Promedio global</span>
+    </article>
+</div>
+
+<section class="panel anim-slide-up" style="--delay: 0.2s">
+    <div class="panel-head">
+        <h2>Usuarios recientes</h2>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.usuario_nuevo') }}">+ Nuevo usuario</a>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.nombre }}</td>
+                    <td>{{ u.email }}</td>
+                    <td><span class="role-badge role-badge--{{ u.role }}">{{ role_label(u.role) }}</span></td>
+                    <td>{{ 'Activo' if u.activo else 'Inactivo' }}</td>
+                    <td><a href="{{ url_for('admin.usuario_editar', user_id=u.id) }}">Editar</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

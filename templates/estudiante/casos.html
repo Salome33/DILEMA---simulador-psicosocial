@@ -1,0 +1,23 @@
+{% extends "layouts/estudiante_base.html" %}
+{% block title %}Casos | Estudiante{% endblock %}
+{% block module_content %}
+<header class="page-header"><h1>Biblioteca de casos asignados</h1><p>Solo verás casos publicados y asignados a tu grupo.</p></header>
+<div class="case-grid">
+{% for c in cases %}
+<article class="case-card case-card--active anim-slide-up">
+    <h2>{{ c.titulo }}</h2>
+    <p>{{ c.descripcion }}</p>
+    <ul class="case-meta">
+        <li><span class="material-symbols-outlined">calendar_today</span> {{ c.fecha_inicio }} — {{ c.fecha_cierre }}</li>
+        <li><span class="material-symbols-outlined">category</span> {{ c.tematica }}</li>
+    </ul>
+    <div class="case-card-actions">
+        <a class="btn btn-ghost" href="{{ url_for('estudiante.caso_detalle', case_id=c.id) }}">Briefing</a>
+        <a class="btn btn-neuro" href="{{ url_for('estudiante.advertencia', case_id=c.id) }}">Entrar</a>
+    </div>
+</article>
+{% else %}
+<p class="empty-state">No hay casos asignados.</p>
+{% endfor %}
+</div>
+{% endblock %}

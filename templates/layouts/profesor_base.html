@@ -1,0 +1,13 @@
+{% extends "layouts/module_base.html" %}
+{% set dashboard_endpoint = 'profesor.dashboard' %}
+
+{% block module_title %}Módulo Docente{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{{ url_for('profesor.dashboard') }}" class="{% if active == 'dashboard' %}active{% endif %}"><span class="material-symbols-outlined">dashboard</span> Panel</a>
+<a href="{{ url_for('profesor.grupos') }}" class="{% if active == 'grupos' %}active{% endif %}"><span class="material-symbols-outlined">groups</span> Grupos</a>
+<a href="{{ url_for('profesor.estudiantes') }}" class="{% if active == 'estudiantes' %}active{% endif %}"><span class="material-symbols-outlined">school</span> Estudiantes</a>
+<a href="{{ url_for('profesor.casos') }}" class="{% if active == 'casos' %}active{% endif %}"><span class="material-symbols-outlined">edit_note</span> Casos</a>
+<a href="{{ url_for('profesor.bitacoras') }}" class="{% if active == 'bitacoras' %}active{% endif %}"><span class="material-symbols-outlined">menu_book</span> Bitácoras</a>
+<a href="{{ url_for('profesor.resultados') }}" class="{% if active == 'resultados' %}active{% endif %}"><span class="material-symbols-outlined">analytics</span> Resultados</a>
+{% endblock %}
